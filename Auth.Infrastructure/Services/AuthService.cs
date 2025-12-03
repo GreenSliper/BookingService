@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Auth.Infrastructure.Services
 {
-	internal class AuthService : IAuthService
+	public class AuthService : IAuthService
 	{
 		private readonly IUserRepository _userRepository;
 		private readonly IPasswordHasherService _hasher;
@@ -20,6 +20,11 @@ namespace Auth.Infrastructure.Services
 			_userRepository = userRepository;
 			_hasher = hasher;
 			_jwt = jwt;
+		}
+
+		public async Task DeleteUserAsync(string email)
+		{
+			await _userRepository.DeleteByEmailAsync(email);
 		}
 
 		public async Task<string?> LoginAsync(string email, string password)

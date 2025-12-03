@@ -18,8 +18,6 @@ namespace Auth.Api
 			{
 				options.UseNpgsql(builder.Configuration.GetConnectionString("AuthDb"));
 			});
-			builder.Services.AddScoped<IUserRepository, UserRepository>(); 
-			builder.Services.AddSingleton<IPasswordHasherService, PasswordHasherService>();
 			var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 			builder.Services.AddSingleton(jwtSettings!);
 			builder.Services.AddAuthentication(options =>
@@ -41,6 +39,9 @@ namespace Auth.Api
 				};
 			});
 			builder.Services.AddSingleton<IJwtService, JwtService>();
+			builder.Services.AddScoped<IUserRepository, UserRepository>();
+			builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
+			builder.Services.AddScoped<IAuthService, AuthService>();
 
 			builder.Services.AddControllers();
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -10,5 +10,6 @@ namespace Auth.Application.Services
 	{
 		Task<string?> LoginAsync(string email, string password);
 		Task RegisterAsync(string email, string password);
+		Task DeleteUserAsync(string email);
 	}
 }

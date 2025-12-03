@@ -25,6 +25,16 @@ namespace Auth.Infrastructure.Services
 			await _dbContext.SaveChangesAsync();
 		}
 
+		public async Task DeleteByEmailAsync(string email)
+		{
+			var user = await GetByEmailAsync(email);
+			if (user == null) 
+				return;
+
+			_dbContext.Users.Remove(user);
+			await _dbContext.SaveChangesAsync();
+		}
+
 		public async Task<User?> GetByEmailAsync(string email)
 		{
 			return await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
