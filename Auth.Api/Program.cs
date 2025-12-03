@@ -18,6 +18,7 @@ namespace Auth.Api
 			{
 				options.UseNpgsql(builder.Configuration.GetConnectionString("AuthDb"));
 			});
+			builder.Services.AddScoped<IUserRepository, UserRepository>(); 
 			builder.Services.AddSingleton<IPasswordHasherService, PasswordHasherService>();
 			var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 			builder.Services.AddSingleton(jwtSettings!);
