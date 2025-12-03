@@ -1,7 +1,9 @@
 using Auth.Application.Services;
-using Auth.Infrastructure;
 using Auth.Infrastructure.Data;
+using Auth.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Auth.Api
 {
@@ -17,6 +19,27 @@ namespace Auth.Api
 				options.UseNpgsql(builder.Configuration.GetConnectionString("AuthDb"));
 			});
 			builder.Services.AddSingleton<IPasswordHasherService, PasswordHasherService>();
+			var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+			builder.Services.AddSingleton(jwtSettings!);
+			builder.Services.AddAuthentication(options =>
+			{
+				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			})
+			.AddJwtBearer(options =>
+			{
+				options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+				{
+					ValidateIssuer = true,
+					ValidateAudience = true,
+					ValidateLifetime = true,
+					ValidateIssuerSigningKey = true,
+					ValidIssuer = jwtSettings.Issuer,
+					ValidAudience = jwtSettings.Audience,
+					IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSettings.Secret))
+				};
+			});
+			builder.Services.AddSingleton<IJwtService, JwtService>();
 
 			builder.Services.AddControllers();
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
