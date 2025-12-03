@@ -1,3 +1,5 @@
+using Auth.Application.Services;
+using Auth.Infrastructure;
 using Auth.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +16,7 @@ namespace Auth.Api
 			{
 				options.UseNpgsql(builder.Configuration.GetConnectionString("AuthDb"));
 			});
+			builder.Services.AddSingleton<IPasswordHasherService, PasswordHasherService>();
 
 			builder.Services.AddControllers();
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
