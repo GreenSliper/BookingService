@@ -1,5 +1,6 @@
 ﻿using Auth.Application.Services;
 using Auth.Domain.Entities;
+using Auth.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +33,9 @@ namespace Auth.Infrastructure.Services
 
 		public async Task RegisterAsync(string email, string password)
 		{
+			var existingUser = await _userRepository.GetByEmailAsync(email);
+			if (existingUser != null)
+				throw new EmailTakenException(email); 
 			var hashed = _hasher.HashPassword(password);
 			var user = new User { Email = email, PasswordHash = hashed };
 			await _userRepository.AddAsync(user);
