@@ -1,0 +1,100 @@
+############################
+# Visual Studio
+############################
+.vs/
+*.vscode/
+*.user
+*.suo
+*.sln.docstates
+
+# VS indexing files
+*.vsidx
+*.vsscc
+*_i.c
+*_p.c
+*.ncb
+*.aps
+*.opt
+*.cachefile
+
+############################
+# Build results
+############################
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+############################
+# .NET
+############################
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Local NuGet packages
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+
+############################
+# Docker
+############################
+# Ignore container build outputs
+**/Dockerfile.deps
+**/docker-compose.override.yml
+
+# VS Docker artifacts
+.docker/
+docker-compose.vs.debug.yml
+docker-compose.vs.release.yml
+
+############################
+# OS generated files
+############################
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+############################
+# Logs
+############################
+*.log
+*.tlog
+*.svclog
+*.wrn
+*.err
+
+############################
+# Rider / JetBrains
+############################
+.idea/
+*.sln.iml
+
+############################
+# Tests
+############################
+TestResult*/
+TestResults/
+nunit-*.xml
+coverage*.xml
+
+############################
+# Other
+############################
+*.tmp
+*.cache
+*.config.user
