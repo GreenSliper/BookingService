@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Auth.Application.Services
 {
-	public interface IJwtService
+	public interface IAccessTokenService
 	{
 		string GenerateToken(string userId);
+		Guid? GetUserIdFromExpiredToken(string token);
 	}
 }

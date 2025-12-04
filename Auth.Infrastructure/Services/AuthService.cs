@@ -1,6 +1,8 @@
-﻿using Auth.Application.Services;
+﻿using Auth.Application.Repos;
+using Auth.Application.Services;
 using Auth.Domain.Entities;
 using Auth.Domain.Exceptions;
+using Auth.Infrastructure.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +14,20 @@ namespace Auth.Infrastructure.Services
 	public class AuthService : IAuthService
 	{
 		private readonly IUserRepository _userRepository;
-		private readonly IPasswordHasherService _hasher;
-		private readonly IJwtService _jwt;
+		private readonly IHasherService _hasher;
+		private readonly IAccessTokenService _accessTokenService;
+		private readonly IRefreshTokenGenerator _refreshTokenGenerator;
+		private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-		public AuthService(IUserRepository userRepository, IPasswordHasherService hasher, IJwtService jwt)
+		public AuthService(IUserRepository userRepository, IHasherService hasher, 
+			IAccessTokenService accessTokenService, IRefreshTokenGenerator refreshTokenGenerator, 
+			IRefreshTokenRepository refreshTokenRepository)
 		{
 			_userRepository = userRepository;
 			_hasher = hasher;
-			_jwt = jwt;
+			_accessTokenService = accessTokenService;
+			_refreshTokenGenerator = refreshTokenGenerator;
+			_refreshTokenRepository = refreshTokenRepository;
 		}
 
 		public async Task DeleteUserAsync(string email)
@@ -27,13 +35,56 @@ namespace Auth.Infrastructure.Services
 			await _userRepository.DeleteByEmailAsync(email);
 		}
 
-		public async Task<string?> LoginAsync(string email, string password)
+		public async Task<(string accessToken, string refreshToken)> LoginAsync(string email, string password)
 		{
-			var user = await _userRepository.GetByEmailAsync(email);
-			if (user == null || !_hasher.VerifyPassword(user.PasswordHash, password))
-				return null;
+			var user = await _userRepository.GetByEmailAsync(email)
+			   ?? throw new UnauthorizedException("Invalid credentials");
 
-			return _jwt.GenerateToken(user.Id.ToString());
+			if (!_hasher.VerifyPassword(user.PasswordHash, password))
+				throw new UnauthorizedException("Invalid credentials");
+
+			// 1. Создаём access token
+			var accessToken = _accessTokenService.GenerateToken(user.Id.ToString());
+			// 2. Генерируем refresh token
+			(var refreshTokenEntity, string token) = _refreshTokenGenerator.Generate(user.Id);
+			await _refreshTokenRepository.AddAsync(refreshTokenEntity);
+
+			return (accessToken, token);
+		}
+
+		public async Task<(string accessToken, string refreshToken)> RefreshAsync(string expiredAccessToken, string refreshToken)
+		{
+			// 1. Получаем userId из access токена (даже если он просрочен)
+			var userId = _accessTokenService.GetUserIdFromExpiredToken(expiredAccessToken);
+			if (userId == null)
+				throw new UnauthorizedAccessException("Invalid access token");
+
+			// 2. Ищем пользователя
+			var user = await _userRepository.GetByIdAsync(userId.Value);
+			if (user == null)
+				throw new UnauthorizedAccessException("User not found");
+
+			// 3. Получаем refresh токены ТОЛЬКО ЭТОГО пользователя
+			var tokens = await _refreshTokenRepository.GetByUserIdAsync(user.Id);
+			if (tokens == null || !tokens.Any())
+				throw new UnauthorizedAccessException("No refresh tokens");
+
+			// 4. Ищем ровно тот токен, который принадлежит пользователю
+			var storedToken = tokens
+				.FirstOrDefault(t => t.IsActive && _hasher.ValidateToken(refreshToken, t.TokenSalt, t.TokenHash));
+
+			if (storedToken == null)
+				throw new UnauthorizedAccessException("Refresh token invalid or expired");
+
+			// 5. Старый refresh token — помечаем как отозванный
+			await _refreshTokenRepository.RevokeAsync(storedToken);
+
+			// 6. Создаём новую пару токенов
+			var newAccessToken = _accessTokenService.GenerateToken(user.Id.ToString());
+			(var refreshTokenEntity, string newRefreshToken) = _refreshTokenGenerator.Generate(user.Id);
+			await _refreshTokenRepository.AddAsync(refreshTokenEntity);
+
+			return (newAccessToken, newRefreshToken);
 		}
 
 		public async Task RegisterAsync(string email, string password)

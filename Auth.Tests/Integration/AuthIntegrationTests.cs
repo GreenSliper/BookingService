@@ -1,6 +1,7 @@
 ﻿using Auth.Api;
 using Auth.Api.DTO;
 using Auth.Application.Services;
+using Auth.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -41,16 +42,44 @@ namespace Auth.Tests.Integration
 				var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", registerDto);
 				loginResponse.EnsureSuccessStatusCode();
 
-				var loginResult = await loginResponse.Content.ReadFromJsonAsync<JsonElement>();
-				var token = loginResult.GetProperty("token").GetString();
-				Assert.NotNull(token);
+				var loginResult = await loginResponse.Content.ReadFromJsonAsync<AccessRefreshDto>();
+				Assert.NotNull(loginResult?.AccessToken);
+				Assert.NotNull(loginResult?.RefreshToken);
 			}
 			finally
 			{
 				// 3. Cleanup: удаляем пользователя
 				using var scope = _factory.Services.CreateScope();
 				var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
-				await authService.DeleteUserAsync("test@domain.com");
+				await authService.DeleteUserAsync(email);
+			}
+		}
+
+		[Fact]
+		public async Task Refresh_ShouldReturnNewTokens()
+		{
+			var email = "test@domain.com";
+			var password = "123456";
+
+			try
+			{
+				var registerDto = new LoginDto { Email = email, Password = password };
+				await _client.PostAsJsonAsync("/api/auth/register", registerDto);
+
+				var login = await _client.PostAsJsonAsync("/api/auth/login", registerDto);
+				var accessRefreshTokenData = await login.Content.ReadFromJsonAsync<AccessRefreshDto>();
+
+				var refreshResponse = await _client.PostAsJsonAsync("/api/auth/refresh",
+					accessRefreshTokenData);
+
+				refreshResponse.EnsureSuccessStatusCode();
+			}
+			finally
+			{
+				// 3. Cleanup: удаляем пользователя
+				using var scope = _factory.Services.CreateScope();
+				var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
+				await authService.DeleteUserAsync(email);
 			}
 		}
 	}

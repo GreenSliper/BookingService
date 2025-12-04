@@ -1,5 +1,7 @@
+using Auth.Application.Repos;
 using Auth.Application.Services;
 using Auth.Infrastructure.Data;
+using Auth.Infrastructure.Repository;
 using Auth.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -38,9 +40,11 @@ namespace Auth.Api
 					IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSettings.Secret))
 				};
 			});
-			builder.Services.AddSingleton<IJwtService, JwtService>();
+			builder.Services.AddSingleton<IAccessTokenService, AccessTokenService>();
 			builder.Services.AddScoped<IUserRepository, UserRepository>();
-			builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
+			builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+			builder.Services.AddScoped<IHasherService, HasherService>();
+			builder.Services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
 			builder.Services.AddScoped<IAuthService, AuthService>();
 
 			builder.Services.AddControllers();

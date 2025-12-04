@@ -72,7 +72,7 @@ namespace Auth.Tests
 		{
 			var authServiceMock = new Mock<IAuthService>();
 			authServiceMock.Setup(x => x.LoginAsync(It.IsAny<string>(), It.IsAny<string>()))
-				.ReturnsAsync("mock-jwt-token");
+				.ReturnsAsync(("mock-access-token", "mock-refresh-token"));
 
 			var controller = new AuthController(authServiceMock.Object);
 			var dto = new LoginDto { Email = "test@example.com", Password = "123456" };

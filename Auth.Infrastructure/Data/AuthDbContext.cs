@@ -11,15 +11,17 @@ namespace Auth.Infrastructure.Data
 	public class AuthDbContext : DbContext
 	{
 		public AuthDbContext(DbContextOptions<AuthDbContext> options)
-		: base(options) { }
+			: base(options) { }
 
 		public DbSet<User> Users => Set<User>();
+		public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<User>()
 				.HasIndex(x => x.Email)
 				.IsUnique();
+			modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
 		}
 	}
 }

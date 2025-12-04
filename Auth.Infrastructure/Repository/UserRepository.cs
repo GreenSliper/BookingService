@@ -1,4 +1,4 @@
-﻿using Auth.Application.Services;
+﻿using Auth.Application.Repos;
 using Auth.Domain.Entities;
 using Auth.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Auth.Infrastructure.Services
+namespace Auth.Infrastructure.Repository
 {
 	public class UserRepository : IUserRepository
 	{
