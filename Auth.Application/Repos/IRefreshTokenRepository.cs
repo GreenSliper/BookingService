@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Auth.Application.Services
+namespace Auth.Application.Repos
 {
 	public interface IRefreshTokenRepository
 	{

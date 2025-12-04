@@ -1,4 +1,4 @@
-﻿using Auth.Application.Services;
+﻿using Auth.Application.Repos;
 using Auth.Domain.Entities;
 using Auth.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;

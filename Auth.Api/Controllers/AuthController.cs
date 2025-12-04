@@ -18,9 +18,15 @@ namespace Auth.Api.Controllers
 		[HttpPost("login")]
 		public async Task<IActionResult> Login([FromBody] LoginDto dto)
 		{
-			var token = await _authService.LoginAsync(dto.Email, dto.Password);
-			if (token == null) return Unauthorized();
-			return Ok(new { Token = token });
+			try
+			{
+				(var accessToken, var refreshToken) = await _authService.LoginAsync(dto.Email, dto.Password);
+				return Ok(new AccessRefreshDto{ AccessToken = accessToken, RefreshToken = refreshToken });
+			}
+			catch
+			{
+				return Unauthorized();
+			}
 		}
 
 		[HttpPost("register")]
@@ -37,10 +43,15 @@ namespace Auth.Api.Controllers
 			}
 			catch (Exception ex)
 			{
-				// Например, пользователь с таким email уже существует
 				return BadRequest(new { Error = ex.Message });
 			}
 		}
 
+		[HttpPost("refresh")]
+		public async Task<IActionResult> Refresh([FromBody] AccessRefreshDto request)
+		{
+			var (access, refresh) = await _authService.RefreshAsync(request.AccessToken, request.RefreshToken);
+			return Ok(new { accessToken = access, refreshToken = refresh });
+		}
 	}
 }
