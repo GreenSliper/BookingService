@@ -16,5 +16,6 @@ namespace Auth.Domain.Entities
 		public DateTime? RefreshTokenExpiry { get; set; }
 
 		public DateTime CreatedAt { get; set; }
+		public ICollection<RefreshToken> RefreshTokens { get; set; }
 	}
 }
