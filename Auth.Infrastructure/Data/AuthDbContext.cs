@@ -15,6 +15,7 @@ namespace Auth.Infrastructure.Data
 
 		public DbSet<User> Users => Set<User>();
 		public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+		public DbSet<UserRole> UserRoles => Set<UserRole>();
 		public DbSet<Role> Roles => Set<Role>();
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -23,6 +24,19 @@ namespace Auth.Infrastructure.Data
 				.HasIndex(x => x.Email)
 				.IsUnique();
 			modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
+			modelBuilder.Entity<Role>()
+				.HasData(
+					new Role
+					{
+						Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+						Name = "Admin"
+					},
+					new Role
+					{
+						Id = Guid.Parse("11111111-1111-1111-1111-111111111112"),
+						Name = "User"
+					}
+				);
 			modelBuilder.Entity<UserRole>(entity =>
 			{
 				//composite key
