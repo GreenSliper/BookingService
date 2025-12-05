@@ -2,7 +2,6 @@
 using Auth.Application.Services;
 using Auth.Domain.Entities;
 using Auth.Domain.Exceptions;
-using Auth.Infrastructure.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -93,7 +92,11 @@ namespace Auth.Infrastructure.Services
 			if (existingUser != null)
 				throw new EmailTakenException(email); 
 			var hashed = _hasher.HashPassword(password);
-			var user = new User { Email = email, PasswordHash = hashed };
+			var user = new User { 
+				Email = email,
+				PasswordHash = hashed,
+				CreatedAt = DateTime.UtcNow
+			};
 			await _userRepository.AddAsync(user);
 		}
 	}

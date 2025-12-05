@@ -12,9 +12,6 @@ namespace Auth.Domain.Entities
 
 		public string Email { get; set; } = null!;
 		public string PasswordHash { get; set; } = null!;
-		public string? RefreshToken { get; set; }
-		public DateTime? RefreshTokenExpiry { get; set; }
-
 		public DateTime CreatedAt { get; set; }
 		public ICollection<RefreshToken> RefreshTokens { get; set; }
 	}
