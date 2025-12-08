@@ -1,0 +1,29 @@
+# Игнорируем временные и бинарные файлы
+bin/
+obj/
+*.user
+*.suo
+*.log
+*.vs/
+
+# Файлы тестов (не нужны в контейнере)
+Auth.Tests/
+**/TestResults/
+**/coverage/
+
+# Файлы конфигурации IDE
+.vscode/
+.idea/
+
+# Локальные конфигурации
+*.local
+.env
+
+# Публикации и пакеты NuGet
+*.nupkg
+*.snupkg
+*.zip
+
+# Docker specific
+Dockerfile.*
+docker-compose.override.yml
