@@ -28,7 +28,7 @@ namespace Auth.Infrastructure.Repository
 		public async Task DeleteByEmailAsync(string email)
 		{
 			var user = await GetByEmailAsync(email);
-			if (user == null) 
+			if (user == null)
 				return;
 
 			_dbContext.Users.Remove(user);
@@ -48,6 +48,25 @@ namespace Auth.Infrastructure.Repository
 		public async Task UpdateAsync(User user)
 		{
 			_dbContext.Users.Update(user);
+			await _dbContext.SaveChangesAsync();
+		}
+
+		public async Task<List<string>> GetUserRolesAsync(Guid userId)
+		{
+			return await _dbContext.UserRoles
+				.Where(ur => ur.UserId == userId)
+				.Select(ur => ur.Role.Name)
+				.ToListAsync();
+		}
+
+		public async Task AssignRoleAsync(Guid userId, string roleName)
+		{
+			var role = await _dbContext.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
+			if (role == null)
+				throw new Exception($"Role {roleName} not found");
+
+			var userRole = new UserRole { UserId = userId, RoleId = role.Id };
+			_dbContext.UserRoles.Add(userRole);
 			await _dbContext.SaveChangesAsync();
 		}
 	}

@@ -14,5 +14,7 @@ namespace Auth.Application.Repos
 		Task AddAsync(User user);
 		Task UpdateAsync(User user);
 		Task DeleteByEmailAsync(string email);
+		Task<List<string>> GetUserRolesAsync(Guid userId);
+		Task AssignRoleAsync(Guid userId, string roleName);
 	}
 }

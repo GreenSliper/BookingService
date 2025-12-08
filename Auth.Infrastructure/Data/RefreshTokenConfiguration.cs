@@ -23,7 +23,8 @@ namespace Auth.Infrastructure.Data
 
 			builder.HasOne(x => x.User)
 				   .WithMany(u => u.RefreshTokens)
-				   .HasForeignKey(x => x.UserId);
+				   .HasForeignKey(x => x.UserId)
+				   .OnDelete(DeleteBehavior.Cascade);
 		}
 	}
 }

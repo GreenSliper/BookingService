@@ -8,7 +8,7 @@ namespace Auth.Application.Services
 {
 	public interface IAccessTokenService
 	{
-		string GenerateToken(string userId);
+		string GenerateToken(string userId, IEnumerable<string> userRoles);
 		Guid? GetUserIdFromExpiredToken(string token);
 	}
 }

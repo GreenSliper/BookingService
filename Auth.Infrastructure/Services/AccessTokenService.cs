@@ -23,16 +23,17 @@ namespace Auth.Infrastructure.Services
 			_signingCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256Signature);
 		}
 
-		public string GenerateToken(string userId)
+		public string GenerateToken(string userId, IEnumerable<string> userRoles)
 		{
 			var tokenHandler = new JwtSecurityTokenHandler();
 
+			var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userId) };
+			foreach (var role in userRoles)
+				claims.Add(new Claim(ClaimTypes.Role, role));
+
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{
-				Subject = new ClaimsIdentity(new[]
-				{
-					new Claim(ClaimTypes.NameIdentifier, userId)
-				}),
+				Subject = new ClaimsIdentity(claims),
 				Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiresInMinutes),
 				Issuer = _jwtSettings.Issuer,
 				Audience = _jwtSettings.Audience,

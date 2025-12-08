@@ -43,7 +43,7 @@ namespace Auth.Infrastructure.Services
 				throw new UnauthorizedException("Invalid credentials");
 
 			// 1. Создаём access token
-			var accessToken = _accessTokenService.GenerateToken(user.Id.ToString());
+			var accessToken = _accessTokenService.GenerateToken(user.Id.ToString(), await _userRepository.GetUserRolesAsync(user.Id));
 			// 2. Генерируем refresh token
 			(var refreshTokenEntity, string token) = _refreshTokenGenerator.Generate(user.Id);
 			await _refreshTokenRepository.AddAsync(refreshTokenEntity);
@@ -79,7 +79,7 @@ namespace Auth.Infrastructure.Services
 			await _refreshTokenRepository.RevokeAsync(storedToken);
 
 			// 6. Создаём новую пару токенов
-			var newAccessToken = _accessTokenService.GenerateToken(user.Id.ToString());
+			var newAccessToken = _accessTokenService.GenerateToken(user.Id.ToString(), await _userRepository.GetUserRolesAsync(user.Id));
 			(var refreshTokenEntity, string newRefreshToken) = _refreshTokenGenerator.Generate(user.Id);
 			await _refreshTokenRepository.AddAsync(refreshTokenEntity);
 
@@ -93,11 +93,13 @@ namespace Auth.Infrastructure.Services
 				throw new EmailTakenException(email); 
 			var hashed = _hasher.HashPassword(password);
 			var user = new User { 
+				Id = Guid.NewGuid(),
 				Email = email,
 				PasswordHash = hashed,
 				CreatedAt = DateTime.UtcNow
 			};
 			await _userRepository.AddAsync(user);
+			await _userRepository.AssignRoleAsync(user.Id, "User");
 		}
 	}
 }
