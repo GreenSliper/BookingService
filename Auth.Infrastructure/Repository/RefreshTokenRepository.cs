@@ -19,12 +19,6 @@ namespace Auth.Infrastructure.Repository
 			_context = context;
 		}
 
-		public async Task<RefreshToken> GetByHashAsync(string hash)
-		{
-			return await _context.RefreshTokens
-				//.Include(x => x.User) - seems not needed
-				.FirstOrDefaultAsync(x => x.TokenHash == hash && x.RevokedAt == null);
-		}
 		public async Task<IEnumerable<RefreshToken>> GetByUserIdAsync(Guid userId)
 		{
 			return await _context.RefreshTokens.Where(x=>x.UserId == userId).ToListAsync();
@@ -39,6 +33,14 @@ namespace Auth.Infrastructure.Repository
 		public async Task RevokeAsync(RefreshToken token)
 		{
 			token.RevokedAt = DateTime.UtcNow;
+			await _context.SaveChangesAsync();
+		}
+
+		public async Task DeleteAsync(IEnumerable<RefreshToken> tokens)
+		{
+			if (tokens == null || !tokens.Any())
+				return;
+			_context.RefreshTokens.RemoveRange(tokens);
 			await _context.SaveChangesAsync();
 		}
 	}

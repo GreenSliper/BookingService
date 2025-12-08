@@ -42,9 +42,12 @@ namespace Auth.Infrastructure.Services
 			if (!_hasher.VerifyPassword(user.PasswordHash, password))
 				throw new UnauthorizedException("Invalid credentials");
 
-			// 1. Создаём access token
+			// Delete all previous tokens
+			var tokens = await _refreshTokenRepository.GetByUserIdAsync(user.Id);
+			await _refreshTokenRepository.DeleteAsync(tokens);
+			// Create access token
 			var accessToken = _accessTokenService.GenerateToken(user.Id.ToString(), await _userRepository.GetUserRolesAsync(user.Id));
-			// 2. Генерируем refresh token
+			// Create refresh token
 			(var refreshTokenEntity, string token) = _refreshTokenGenerator.Generate(user.Id);
 			await _refreshTokenRepository.AddAsync(refreshTokenEntity);
 
@@ -53,32 +56,31 @@ namespace Auth.Infrastructure.Services
 
 		public async Task<(string accessToken, string refreshToken)> RefreshAsync(string expiredAccessToken, string refreshToken)
 		{
-			// 1. Получаем userId из access токена (даже если он просрочен)
+			// Get userId
 			var userId = _accessTokenService.GetUserIdFromExpiredToken(expiredAccessToken);
 			if (userId == null)
 				throw new UnauthorizedAccessException("Invalid access token");
 
-			// 2. Ищем пользователя
+			// Get user
 			var user = await _userRepository.GetByIdAsync(userId.Value);
 			if (user == null)
 				throw new UnauthorizedAccessException("User not found");
 
-			// 3. Получаем refresh токены ТОЛЬКО ЭТОГО пользователя
+			// Get user refresh tokens
 			var tokens = await _refreshTokenRepository.GetByUserIdAsync(user.Id);
 			if (tokens == null || !tokens.Any())
 				throw new UnauthorizedAccessException("No refresh tokens");
 
-			// 4. Ищем ровно тот токен, который принадлежит пользователю
+			// Check if there is active refresh token corresponding to user-passed refreshTOken
 			var storedToken = tokens
 				.FirstOrDefault(t => t.IsActive && _hasher.ValidateToken(refreshToken, t.TokenSalt, t.TokenHash));
-
 			if (storedToken == null)
 				throw new UnauthorizedAccessException("Refresh token invalid or expired");
 
-			// 5. Старый refresh token — помечаем как отозванный
-			await _refreshTokenRepository.RevokeAsync(storedToken);
+			// Delete old tokens
+			await _refreshTokenRepository.DeleteAsync(tokens);
 
-			// 6. Создаём новую пару токенов
+			// Create new access & refresh tokens
 			var newAccessToken = _accessTokenService.GenerateToken(user.Id.ToString(), await _userRepository.GetUserRolesAsync(user.Id));
 			(var refreshTokenEntity, string newRefreshToken) = _refreshTokenGenerator.Generate(user.Id);
 			await _refreshTokenRepository.AddAsync(refreshTokenEntity);
