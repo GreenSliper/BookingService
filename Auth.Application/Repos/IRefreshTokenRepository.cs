@@ -9,9 +9,9 @@ namespace Auth.Application.Repos
 {
 	public interface IRefreshTokenRepository
 	{
-		Task<RefreshToken> GetByHashAsync(string hash);
 		Task<IEnumerable<RefreshToken>> GetByUserIdAsync(Guid userId);
 		Task AddAsync(RefreshToken token);
 		Task RevokeAsync(RefreshToken token);
+		Task DeleteAsync(IEnumerable<RefreshToken> tokens);
 	}
 }
