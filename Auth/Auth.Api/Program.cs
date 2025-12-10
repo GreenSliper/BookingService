@@ -60,11 +60,36 @@ namespace Auth.Api
 				app.UseSwagger();
 				app.UseSwaggerUI();
 			}
+			ApplyMigrations(app);
 
 			app.UseHttpsRedirection();
 
 			app.MapControllers();
 			app.Run();
+		}
+
+		static void ApplyMigrations(WebApplication app)
+		{
+			// Ensure migrations are applied
+			using (var scope = app.Services.CreateScope())
+			{
+				var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+				var retries = 10;
+				while (retries > 0)
+				{
+					try
+					{
+						db.Database.Migrate();
+						break;
+					}
+					catch (Npgsql.NpgsqlException)
+					{
+						retries--;
+						Console.WriteLine("Waiting for database...");
+						Thread.Sleep(3000); // 3 секунды
+					}
+				}
+			}
 		}
 	}
 }

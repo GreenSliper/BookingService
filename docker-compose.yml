@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: auth_postgres
+    restart: always
+    ports:
+      - "5433:5432"     # хост:контейнер
+    environment:
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: auth_pass
+      POSTGRES_DB: auth_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  auth.api:
+    build:
+      context: Auth
+      dockerfile: Dockerfile
+    container_name: auth_api
+    depends_on:
+      - postgres
+    ports:
+      - "5000:5000"
+    environment:
+      ASPNETCORE_URLS: http://+:5000
+      ConnectionStrings__AuthDb: "Host=postgres;Port=5432;Database=auth_db;Username=auth;Password=auth_pass"
+
+volumes:
+  postgres_data:

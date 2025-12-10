@@ -21,8 +21,5 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# Проброс порта
-EXPOSE 5000
-
 # Запуск приложения
 ENTRYPOINT ["dotnet", "Auth.Api.dll"]
