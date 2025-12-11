@@ -1,11 +1,11 @@
 #define ALLOW_CORS
+#define USE_INTERNAL_AUTH
 
 using Auth.Application.Repos;
 using Auth.Application.Services;
 using Auth.Infrastructure.Data;
 using Auth.Infrastructure.Repository;
 using Auth.Infrastructure.Services;
-using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Stores;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -17,28 +17,30 @@ namespace Auth.Api
 {
 	public class Program
 	{
-		public static void Main(string[] args)
+		static void ConfigureServices(WebApplicationBuilder builder)
 		{
-			var builder = WebApplication.CreateBuilder(args);
-
-			// Add services to the container.
+			#region MAIN SERVICES
+			
 			builder.Services.AddDbContext<AuthDbContext>(options =>
 			{
 				options.UseNpgsql(builder.Configuration.GetConnectionString("AuthDb"));
 			});
-			var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
-			builder.Services.AddSingleton(jwtSettings!);
+			JwtSettings jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
+			if (jwtSettings == null)
+				throw new Exception("JwtSettings section should be initialized in appsettings.json!");
+			builder.Services.AddSingleton(jwtSettings);
 			//add .well-known/openid-configuration - public key access
 			builder.Services.AddIdentityServer()
 				//.AddInMemoryApiScopes(new[] { new ApiScope("booking") }) - scopes are not needed now
 				.AddDeveloperSigningCredential();
+#if USE_INTERNAL_AUTH
 			builder.Services.AddAuthentication(options =>
 			{
 				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 			})
 			.AddJwtBearer();
-			
+#endif
 			builder.Services.AddSingleton<IAccessTokenService, AccessTokenService>();
 			builder.Services.AddScoped<IUserRepository, UserRepository>();
 			builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
@@ -46,6 +48,8 @@ namespace Auth.Api
 			builder.Services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
 			builder.Services.AddScoped<IAuthService, AuthService>();
 
+			#endregion
+			//UTILS
 #if ALLOW_CORS
 			builder.Services.AddCors(options =>
 			{
@@ -62,6 +66,12 @@ namespace Auth.Api
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
+		}
+
+		public static void Main(string[] args)
+		{
+			var builder = WebApplication.CreateBuilder(args);
+			ConfigureServices(builder);
 
 			var app = builder.Build();
 
@@ -75,8 +85,26 @@ namespace Auth.Api
 #if ALLOW_CORS
 			app.UseCors();
 #endif
+#if USE_INTERNAL_AUTH
+			ConfigureInternalAuth(app);
+#endif
 			ApplyMigrations(app);
 			app.UseIdentityServer();
+			
+			app.UseHttpsRedirection();
+
+			app.MapControllers();
+			app.Run();
+		}
+
+		/// <summary>
+		/// Allow to use [Authorize] for internal endpoints
+		/// </summary>
+		static void ConfigureInternalAuth(WebApplication app)
+		{
+			var jwtSettings = app.Services
+				.GetRequiredService<JwtSettings>();
+			//get identityServer key
 			var signingCredentials = app.Services
 				.GetRequiredService<ISigningCredentialStore>()
 				.GetSigningCredentialsAsync().Result;
@@ -103,10 +131,6 @@ namespace Auth.Api
 				await next();
 			});
 			app.UseAuthorization();
-			app.UseHttpsRedirection();
-
-			app.MapControllers();
-			app.Run();
 		}
 
 		static void ApplyMigrations(WebApplication app)
