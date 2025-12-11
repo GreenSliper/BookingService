@@ -1,5 +1,6 @@
 ﻿using Auth.Application.Services;
 using Auth.Infrastructure.Data;
+using Duende.IdentityServer.Stores;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -14,13 +15,11 @@ namespace Auth.Infrastructure.Services
 	public class AccessTokenService : IAccessTokenService
 	{
 		private readonly JwtSettings _jwtSettings;
-		private readonly SymmetricSecurityKey _signingKey;
 		private readonly SigningCredentials _signingCredentials;
-		public AccessTokenService(JwtSettings jwtSettings)
+		public AccessTokenService(JwtSettings jwtSettings, ISigningCredentialStore signingCredentialStore)
 		{
 			_jwtSettings = jwtSettings;
-			_signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
-			_signingCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256Signature);
+			_signingCredentials = signingCredentialStore.GetSigningCredentialsAsync().Result;
 		}
 
 		public string GenerateToken(string userId, IEnumerable<string> userRoles)
@@ -51,7 +50,7 @@ namespace Auth.Infrastructure.Services
 				ValidateAudience = false,
 				ValidateIssuer = false,
 				ValidateIssuerSigningKey = true,
-				IssuerSigningKey = _signingKey,
+				IssuerSigningKey = _signingCredentials.Key,
 				ValidateLifetime = false // <--
 			};
 
