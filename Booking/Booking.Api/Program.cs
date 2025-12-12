@@ -1,35 +1,39 @@
 #define ALLOW_CORS
 
+using Booking.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Booking.Api
 {
     public class Program
     {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
-
+		static void ConfigureServices(WebApplicationBuilder builder)
+		{
 			// Add services to the container.
 			builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-	            .AddJwtBearer(options =>
-	            {
-                    //enable HTTP
-                    options.RequireHttpsMetadata = false;
-                    options.Authority = builder.Configuration["Auth:Authority"];
-		            options.Audience = "BookingService";
-		            options.TokenValidationParameters = new TokenValidationParameters
-		            {
-			            ValidateIssuer = true,
-			            ValidateAudience = true,
-			            ValidateLifetime = true
-		            };
-	            });
-            builder.Services.AddAuthorization(options =>
-            {
-                //options.AddPolicy
-            });
+				.AddJwtBearer(options =>
+				{
+					//enable HTTP
+					options.RequireHttpsMetadata = false;
+					options.Authority = builder.Configuration["Auth:Authority"];
+					options.Audience = "BookingService";
+					options.TokenValidationParameters = new TokenValidationParameters
+					{
+						ValidateIssuer = true,
+						ValidateAudience = true,
+						ValidateLifetime = true
+					};
+				});
+			builder.Services.AddAuthorization(options =>
+			{
+				//options.AddPolicy
+			});
+			builder.Services.AddDbContext<BookingDbContext>(options =>
+			{
+				options.UseNpgsql(builder.Configuration.GetConnectionString("BookingDb"));
+			});
 
 #if ALLOW_CORS
 			builder.Services.AddCors(options =>
@@ -44,11 +48,17 @@ namespace Booking.Api
 #endif
 
 			builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+			builder.Services.AddEndpointsApiExplorer();
+			builder.Services.AddSwaggerGen();
+		}
 
-            var app = builder.Build();
+		public static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
+			ConfigureServices(builder);
+
+			var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -60,7 +70,7 @@ namespace Booking.Api
 #if ALLOW_CORS
 			app.UseCors();
 #endif
-
+			ApplyMigrations(app);
 			app.UseHttpsRedirection();
 
             app.UseAuthorization();
@@ -70,5 +80,29 @@ namespace Booking.Api
 
             app.Run();
         }
-    }
+
+		static void ApplyMigrations(WebApplication app)
+		{
+			// Ensure migrations are applied
+			using (var scope = app.Services.CreateScope())
+			{
+				var db = scope.ServiceProvider.GetRequiredService<BookingDbContext>();
+				var retries = 10;
+				while (retries > 0)
+				{
+					try
+					{
+						db.Database.Migrate();
+						break;
+					}
+					catch (Npgsql.NpgsqlException)
+					{
+						retries--;
+						Console.WriteLine("Waiting for database...");
+						Thread.Sleep(1000);
+					}
+				}
+			}
+		}
+	}
 }

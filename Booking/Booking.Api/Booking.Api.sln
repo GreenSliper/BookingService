@@ -8,6 +8,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Booking.Domain", "..\Booking.Domain\Booking.Domain.csproj", "{828A9FFA-EB17-46CA-B06F-A31AD5502120}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Booking.Infrastructure", "..\Booking.Infrastructure\Booking.Infrastructure.csproj", "{08C0587A-A6C3-BC28-3489-D658FE092B56}"
+	ProjectSection(ProjectDependencies) = postProject
+		{828A9FFA-EB17-46CA-B06F-A31AD5502120} = {828A9FFA-EB17-46CA-B06F-A31AD5502120}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Booking.Application", "..\Booking.Application\Booking.Application.csproj", "{7D1D41DE-0D9E-45C9-8EB4-2699408B321E}"
 EndProject

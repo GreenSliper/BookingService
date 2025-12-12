@@ -151,7 +151,7 @@ namespace Auth.Api
 					{
 						retries--;
 						Console.WriteLine("Waiting for database...");
-						Thread.Sleep(3000); // 3 секунды
+						Thread.Sleep(1000);
 					}
 				}
 			}

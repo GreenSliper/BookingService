@@ -13,5 +13,11 @@ namespace Booking.Api.Controllers
 		{
 			return Ok("ok");
 		}
+
+		[HttpPost("test")]
+		public async Task<IActionResult> CreateProperty()
+		{
+			return Ok();
+		}
 	}
 }
