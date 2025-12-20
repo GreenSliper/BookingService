@@ -1,9 +1,12 @@
 #define ALLOW_CORS
 
 using Booking.Infrastructure.Data;
+using Booking.Application.Commands;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Booking.Application.Repos;
+using Booking.Infrastructure.Repos;
 
 namespace Booking.Api
 {
@@ -34,7 +37,10 @@ namespace Booking.Api
 			{
 				options.UseNpgsql(builder.Configuration.GetConnectionString("BookingDb"));
 			});
-
+			builder.Services.AddMediatR(cfg => {
+				cfg.RegisterServicesFromAssemblyContaining<CreatePropertyCommand>();
+			});
+			builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
 #if ALLOW_CORS
 			builder.Services.AddCors(options =>
 			{
