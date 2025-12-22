@@ -76,7 +76,10 @@ namespace Booking.Api
 #if ALLOW_CORS
 			app.UseCors();
 #endif
-			ApplyMigrations(app);
+			if (app.Environment.IsProduction())
+			{
+				ApplyMigrations(app);
+			}
 			app.UseHttpsRedirection();
 
             app.UseAuthorization();
