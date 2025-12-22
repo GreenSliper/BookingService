@@ -14,5 +14,6 @@ namespace Booking.Application.Repos
 		Task<IReadOnlyList<Property>> GetByOwnerIdAsync(Guid ownerId, CancellationToken cancellationToken);
 		Task<bool> ExistsAsync(Guid propertyId, Guid ownerId, CancellationToken cancellationToken);
 		Task DeleteAsync(Property property, CancellationToken cancellationToken);
+		Task UpdateAsync(Property property, CancellationToken cancellationToken);
 	}
 }

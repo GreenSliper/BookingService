@@ -1,4 +1,5 @@
 ﻿using Booking.Application.Commands;
+using Booking.Application.Dtos;
 using Booking.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -40,7 +41,7 @@ namespace Booking.Api.Controllers
 		}
 		
 		[HttpGet("{id}")]
-		[AllowAnonymous] // если хочешь, чтобы объект мог смотреть любой
+		[AllowAnonymous] // allow anyone see
 		public async Task<IActionResult> GetById(Guid id)
 		{
 			var result = await _mediator.Send(new GetPropertyByIdQuery(id));
@@ -48,9 +49,43 @@ namespace Booking.Api.Controllers
 		}
 
 		[HttpGet("my")]
-		public async Task<IActionResult> GetProperties()
+		public async Task<IActionResult> GetProperties(CancellationToken ct)
 		{
-			return Ok();
+			var userId = GetUserId(); // extension method
+
+			var result = await _mediator.Send(
+				new GetMyPropertiesQuery(userId),
+				ct);
+
+			return Ok(result);
+		}
+
+		[HttpPut("{id:guid}")]
+		public async Task<IActionResult> Update(Guid id, UpdatePropertyRequest request, CancellationToken ct)
+		{
+			var userId = GetUserId();
+
+			await _mediator.Send(
+				new UpdatePropertyCommand(
+					id,
+					userId,
+					request.Title,
+					request.Address),
+				ct);
+
+			return NoContent();
+		}
+
+		[HttpDelete("{id:guid}")]
+		public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+		{
+			var userId = GetUserId();
+
+			await _mediator.Send(
+				new DeletePropertyCommand(id, userId),
+				ct);
+
+			return NoContent();
 		}
 	}
 }

@@ -38,5 +38,17 @@ namespace Booking.Domain.Entities
 				Description = description
 			};
 		}
+
+		public void Update(string name, string address)
+		{
+			if (string.IsNullOrWhiteSpace(name))
+				throw new DomainException(nameof(name));
+
+			if (string.IsNullOrWhiteSpace(address))
+				throw new DomainException(nameof(address));
+
+			Name = name;
+			Address = address;
+		}
 	}
 }

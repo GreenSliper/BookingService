@@ -65,5 +65,11 @@ namespace Booking.Infrastructure.Repos
 			_dbContext.Properties.Remove(property);
 			await _dbContext.SaveChangesAsync(cancellationToken);
 		}
+
+		public async Task UpdateAsync(Property property, CancellationToken cancellationToken)
+		{
+			_dbContext.Properties.Update(property);
+			await _dbContext.SaveChangesAsync(cancellationToken);
+		}
 	}
 }
