@@ -15,7 +15,7 @@ namespace Booking.Application.Commands
 	{
 		public Guid OwnerId { get; set; }
 
-		public string Title { get; set; }
+		public string Name { get; set; }
 		public string Description { get; set; }
 		public PropertyType Type { get; set; }
 		public string Address { get; set; }
@@ -37,7 +37,7 @@ namespace Booking.Application.Commands
 		{
 			var property = Property.Create(
 				request.OwnerId,
-				request.Title,
+				request.Name,
 				request.Type,
 				request.Address,
 				request.Description);

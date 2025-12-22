@@ -1,4 +1,5 @@
-﻿using Booking.Application.Commands;
+﻿using Booking.Api.Dto;
+using Booking.Application.Commands;
 using Booking.Application.Dtos;
 using Booking.Application.Queries;
 using MediatR;
@@ -33,9 +34,15 @@ namespace Booking.Api.Controllers
 		}
 
 		[HttpPost("create")]
-		public async Task<IActionResult> CreateProperty([FromBody] CreatePropertyCommand command)
+		public async Task<IActionResult> CreateProperty([FromBody] CreatePropertyDto dto)
 		{
-			command.OwnerId = GetUserId();
+			var command = new CreatePropertyCommand()
+			{
+				OwnerId = GetUserId(),
+				Name = dto.Name,
+				Address = dto.Address,
+				Type = dto.Type
+			};
 			var result = await _mediator.Send(command);
 			return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
 		}
