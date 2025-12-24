@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Booking.Application.Repos;
 using Booking.Infrastructure.Repos;
+using Booking.Api.Middleware;
 
 namespace Booking.Api
 {
@@ -80,6 +81,7 @@ namespace Booking.Api
 			{
 				ApplyMigrations(app);
 			}
+			app.UseMiddleware<ExceptionHandlingMiddleware>();
 			app.UseHttpsRedirection();
 
             app.UseAuthorization();
