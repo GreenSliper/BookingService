@@ -20,24 +20,14 @@ namespace Booking.Tests.Integration.Properties
 		public async Task GetMy_ReturnsOnlyMyProperties()
 		{
 			// arrange
-			var request = new CreatePropertyDto
-			{
-				Name = "Hotel California",
-				Address = "Sunset Boulevard",
-				Type = Domain.Entities.PropertyType.Hotel
-			};
-
-			await Client.PostAsJsonAsync("/api/properties/create", request);
-
+			await CreatePropertyAsync();
 			// act
 			var response = await Client.GetAsync("/api/properties/my");
-
 			// assert
 			var result = await response.Content
 				.ReadFromJsonAsync<List<PropertyDto>>();
 
 			result.Count.ShouldBe(1);
 		}
-
 	}
 }

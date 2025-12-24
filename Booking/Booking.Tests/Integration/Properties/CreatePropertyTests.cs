@@ -1,5 +1,6 @@
 ﻿using Booking.Api.Dto;
 using Booking.Application.Commands;
+using Booking.Application.Dtos;
 using Booking.Tests.Integration.Infrastructure;
 using Shouldly;
 using System;
@@ -17,21 +18,11 @@ namespace Booking.Tests.Integration.Properties
 		public CreatePropertyTests(BookingApiFactory factory)
 			: base(factory) { }
 
+
 		[Fact]
 		public async Task CreateProperty_ReturnsCreated()
 		{
-			var request = new CreatePropertyDto
-			{
-				Name = "Hotel California",
-				Address = "Sunset Boulevard",
-				Type = Domain.Entities.PropertyType.Hotel
-			};
-
-			var response = await Client.PostAsJsonAsync(
-				"/api/properties/create",
-				request);
-
-			response.StatusCode.ShouldBe(HttpStatusCode.Created);
+			await CreatePropertyAsync();
 		}
 	}
 

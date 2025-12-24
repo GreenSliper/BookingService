@@ -13,7 +13,7 @@ namespace Booking.Tests.Integration.Infrastructure
 {
 	public sealed class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 	{
-		public const string UserId = "11111111-1111-1111-1111-111111111111";
+		private readonly Guid defaultUserId = Guid.Parse("11111111-1111-1111-1111-111111111111");
 
 		public TestAuthHandler(
 			IOptionsMonitor<AuthenticationSchemeOptions> options,
@@ -25,9 +25,14 @@ namespace Booking.Tests.Integration.Infrastructure
 
 		protected override Task<AuthenticateResult> HandleAuthenticateAsync()
 		{
+			var userIdHeader = Request.Headers["X-Test-UserId"].FirstOrDefault();
+
+			var userId = userIdHeader != null
+				? Guid.Parse(userIdHeader)
+				: defaultUserId;
 			var claims = new[]
 			{
-				new Claim(ClaimTypes.NameIdentifier, UserId)
+				new Claim(ClaimTypes.NameIdentifier, userId.ToString())
 			};
 
 			var identity = new ClaimsIdentity(claims, "Test");
