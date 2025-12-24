@@ -18,7 +18,7 @@ namespace Booking.Application.Extensions
 				Name = property.Name,
 				Description = property.Description,
 				Address = property.Address,
-				Type = property.Type.ToString(),
+				Type = property.Type,
 				OwnerId = property.OwnerId,
 				CreatedAt = property.CreatedAt
 			};

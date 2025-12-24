@@ -68,19 +68,20 @@ namespace Booking.Api.Controllers
 		}
 
 		[HttpPut("{id:guid}")]
-		public async Task<IActionResult> Update(Guid id, UpdatePropertyRequest request, CancellationToken ct)
+		public async Task<IActionResult> Update(Guid id, UpdatePropertyDto request, CancellationToken ct)
 		{
 			var userId = GetUserId();
 
-			await _mediator.Send(
+			var updated = await _mediator.Send(
 				new UpdatePropertyCommand(
 					id,
 					userId,
-					request.Title,
-					request.Address),
+					request.Name,
+					request.Address,
+					request.Type),
 				ct);
 
-			return NoContent();
+			return Ok(updated);
 		}
 
 		[HttpDelete("{id:guid}")]

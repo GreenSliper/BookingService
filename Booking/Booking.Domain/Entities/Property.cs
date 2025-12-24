@@ -39,7 +39,7 @@ namespace Booking.Domain.Entities
 			};
 		}
 
-		public void Update(string name, string address)
+		public void Update(string name, string address, PropertyType type)
 		{
 			if (string.IsNullOrWhiteSpace(name))
 				throw new DomainException(nameof(name));
@@ -49,6 +49,7 @@ namespace Booking.Domain.Entities
 
 			Name = name;
 			Address = address;
+			Type = type;
 		}
 	}
 }
