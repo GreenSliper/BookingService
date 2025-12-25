@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Booking.Application.Commands
+namespace Booking.Application.Commands.Properties
 {
 	public sealed record DeletePropertyCommand(Guid PropertyId, Guid OwnerId) : IRequest;
 

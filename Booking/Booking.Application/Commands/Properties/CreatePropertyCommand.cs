@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Booking.Application.Commands
+namespace Booking.Application.Commands.Properties
 {
 	public class CreatePropertyCommand : IRequest<PropertyDto>
 	{

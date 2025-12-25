@@ -1,6 +1,5 @@
-﻿using Booking.Api.Dto;
+﻿using Booking.Api.Dto.Properties;
 using Booking.Application.Commands;
-using Booking.Application.Dtos;
 using Booking.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

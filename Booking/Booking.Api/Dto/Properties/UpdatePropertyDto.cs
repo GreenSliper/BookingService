@@ -1,8 +1,8 @@
 ﻿using Booking.Domain.Entities;
 
-namespace Booking.Api.Dto
+namespace Booking.Api.Dto.Properties
 {
-	public sealed class CreatePropertyDto
+	public sealed class UpdatePropertyDto
 	{
 		public required string Name { get; init; }
 		public required string Address { get; init; }

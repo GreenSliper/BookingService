@@ -1,13 +1,13 @@
 #define ALLOW_CORS
 
 using Booking.Infrastructure.Data;
-using Booking.Application.Commands;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Booking.Application.Repos;
 using Booking.Infrastructure.Repos;
 using Booking.Api.Middleware;
+using Booking.Application.Commands.Properties;
 
 namespace Booking.Api
 {
