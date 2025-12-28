@@ -28,12 +28,11 @@ namespace Booking.Infrastructure.Repos
 
 		public async Task<bool> ExistsAsync(
 			Guid propertyId,
-			Guid ownerId,
 			CancellationToken cancellationToken)
 		{
 			return await _dbSet
 				.AnyAsync(
-					x => x.Id == propertyId && x.OwnerId == ownerId,
+					x => x.Id == propertyId,
 					cancellationToken);
 		}
 	}

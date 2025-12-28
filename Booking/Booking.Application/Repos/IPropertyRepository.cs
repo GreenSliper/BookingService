@@ -10,6 +10,6 @@ namespace Booking.Application.Repos
 	public interface IPropertyRepository : IRepository<Property>
 	{
 		Task<IReadOnlyList<Property>> GetByOwnerIdAsync(Guid ownerId, CancellationToken cancellationToken);
-		Task<bool> ExistsAsync(Guid propertyId, Guid ownerId, CancellationToken cancellationToken);
+		Task<bool> ExistsAsync(Guid propertyId, CancellationToken cancellationToken);
 	}
 }

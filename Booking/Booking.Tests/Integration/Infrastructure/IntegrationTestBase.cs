@@ -1,4 +1,5 @@
 ﻿using Booking.Api.Dto;
+using Booking.Api.Dto.Properties;
 using Booking.Application.Dtos;
 using Shouldly;
 using System;

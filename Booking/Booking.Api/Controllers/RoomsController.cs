@@ -1,4 +1,7 @@
 ﻿using Booking.Api.Dto.Rooms;
+using Booking.Application.Commands.Rooms;
+using Booking.Application.Dtos;
+using Booking.Application.Queries.Rooms;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,12 +23,14 @@ namespace Booking.Api.Controllers
 			Guid propertyId,
 			CreateRoomDto dto)
 		{
-			var id = await _mediator.Send(new CreateRoomCommand(
+			var roomDto = await _mediator.Send(new CreateRoomCommand(
 				propertyId,
 				dto.Name,
-				dto.Area));
+				dto.Description,
+				dto.Capacity,
+				dto.PricePerNight));
 
-			return CreatedAtAction(nameof(GetById), new { propertyId, roomId = id }, null);
+			return CreatedAtAction(nameof(GetById), new { propertyId, roomId = roomDto.Id }, roomDto);
 		}
 
 		[HttpGet("{roomId:guid}")]
@@ -33,7 +38,7 @@ namespace Booking.Api.Controllers
 			Guid propertyId,
 			Guid roomId)
 		{
-			var room = await _mediator.Send(new GetRoomQuery(propertyId, roomId));
+			var room = await _mediator.Send(new GetRoomByIdQuery(propertyId, roomId));
 			return Ok(room);
 		}
 
@@ -41,7 +46,7 @@ namespace Booking.Api.Controllers
 		public async Task<ActionResult<IReadOnlyList<RoomDto>>> GetAll(
 			Guid propertyId)
 		{
-			var rooms = await _mediator.Send(new GetRoomsByPropertyQuery(propertyId));
+			var rooms = await _mediator.Send(new GetRoomsByPropertyIdQuery(propertyId));
 			return Ok(rooms);
 		}
 
@@ -51,13 +56,15 @@ namespace Booking.Api.Controllers
 			Guid roomId,
 			UpdateRoomDto dto)
 		{
-			await _mediator.Send(new UpdateRoomCommand(
+			var room = await _mediator.Send(new UpdateRoomCommand(
 				propertyId,
 				roomId,
 				dto.Name,
-				dto.Area));
+				dto.Description,
+				dto.Capacity,
+				dto.PricePerNight));
 
-			return NoContent();
+			return Ok(room);
 		}
 
 		[HttpDelete("{roomId:guid}")]

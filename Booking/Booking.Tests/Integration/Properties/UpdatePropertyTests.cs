@@ -1,4 +1,5 @@
-﻿using Booking.Application.Dtos;
+﻿using Booking.Api.Dto.Properties;
+using Booking.Application.Dtos;
 using Booking.Domain.Entities;
 using Booking.Tests.Integration.Infrastructure;
 using Shouldly;

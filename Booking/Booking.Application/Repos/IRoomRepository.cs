@@ -9,5 +9,6 @@ namespace Booking.Application.Repos
 {
 	public interface IRoomRepository : IRepository<Room>
 	{
+		Task<IReadOnlyList<Room>> GetByPropertyId(Guid propertyId, CancellationToken cancellationToken);
 	}
 }

@@ -8,6 +8,8 @@ using Booking.Application.Repos;
 using Booking.Infrastructure.Repos;
 using Booking.Api.Middleware;
 using Booking.Application.Commands.Properties;
+using Booking.Application.Services;
+using Booking.Infrastructure.Services;
 
 namespace Booking.Api
 {
@@ -34,6 +36,9 @@ namespace Booking.Api
 			{
 				//options.AddPolicy
 			});
+			builder.Services.AddHttpContextAccessor();
+			builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+
 			builder.Services.AddDbContext<BookingDbContext>(options =>
 			{
 				options.UseNpgsql(builder.Configuration.GetConnectionString("BookingDb"));
@@ -42,6 +47,7 @@ namespace Booking.Api
 				cfg.RegisterServicesFromAssemblyContaining<CreatePropertyCommand>();
 			});
 			builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
+			builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 #if ALLOW_CORS
 			builder.Services.AddCors(options =>
 			{
