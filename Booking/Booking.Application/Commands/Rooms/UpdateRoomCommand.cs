@@ -41,7 +41,7 @@ namespace Booking.Application.Commands.Rooms
 				throw new ForbiddenException($"Cannot delete room of another user property");
 
 			var room = await _roomRepository.GetByIdAsync(cmd.RoomId, ct);
-			if (room is null)
+			if (room is null || room.PropertyId != cmd.PropertyId)
 				throw new NotFoundException("Property not found");
 
 			room.Update(cmd.Name, cmd.Description, cmd.Capacity, cmd.PricePerNight);

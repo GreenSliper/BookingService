@@ -21,7 +21,7 @@ namespace Booking.Api.Controllers
 		[HttpPost]
 		public async Task<IActionResult> Create(
 			Guid propertyId,
-			CreateRoomDto dto)
+			[FromBody] CreateRoomDto dto)
 		{
 			var roomDto = await _mediator.Send(new CreateRoomCommand(
 				propertyId,

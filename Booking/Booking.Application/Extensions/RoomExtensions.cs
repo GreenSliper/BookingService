@@ -14,6 +14,7 @@ namespace Booking.Application.Extensions
 		{
 			return new RoomDto()
 			{
+				Id = room.Id,
 				PropertyId = room.PropertyId,
 				Name = room.Name,
 				Description = room.Description,
