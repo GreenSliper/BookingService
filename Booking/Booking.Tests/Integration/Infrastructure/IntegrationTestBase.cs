@@ -1,4 +1,6 @@
 ﻿using Booking.Api.Dto;
+using Booking.Api.Dto.Properties;
+using Booking.Api.Dto.Rooms;
 using Booking.Application.Dtos;
 using Shouldly;
 using System;
@@ -47,6 +49,30 @@ namespace Booking.Tests.Integration.Infrastructure
 			property.ShouldNotBeNull();
 
 			return property!;
+		}
+
+		protected CreateRoomDto CreateRoomDto()
+		{
+			return new CreateRoomDto
+			{
+				Name = "Small number",
+				Capacity = 2,
+				PricePerNight = 50
+			};
+		}
+
+		protected async Task<RoomDto> CreateRoomAsync(Guid propertyId)
+		{
+			var dto = CreateRoomDto();
+			var response = await Client.PostAsJsonAsync(
+				$"/api/properties/{propertyId}/rooms",
+				dto);
+
+			response.StatusCode.ShouldBe(HttpStatusCode.Created);
+			
+			var room = await response.Content.ReadFromJsonAsync<RoomDto>();
+			room.ShouldNotBeNull();
+			return room!;
 		}
 	}
 

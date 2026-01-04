@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Booking.Application.Queries
+namespace Booking.Application.Queries.Properties
 {
 	public sealed record GetPropertyByIdQuery(Guid PropertyId) : IRequest<PropertyDto>;
 

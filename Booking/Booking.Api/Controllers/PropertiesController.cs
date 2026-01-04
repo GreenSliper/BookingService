@@ -1,7 +1,6 @@
-﻿using Booking.Api.Dto;
-using Booking.Application.Commands;
-using Booking.Application.Dtos;
-using Booking.Application.Queries;
+﻿using Booking.Api.Dto.Properties;
+using Booking.Application.Commands.Properties;
+using Booking.Application.Queries.Properties;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,12 +20,6 @@ namespace Booking.Api.Controllers
 			_mediator = mediator;
 		}
 
-		private Guid GetUserId()
-		{
-			var sub = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			return Guid.Parse(sub);
-		}
-
 		[HttpGet("test")]
 		public IActionResult TestAuth()
 		{
@@ -38,7 +31,6 @@ namespace Booking.Api.Controllers
 		{
 			var command = new CreatePropertyCommand()
 			{
-				OwnerId = GetUserId(),
 				Name = dto.Name,
 				Address = dto.Address,
 				Type = dto.Type
@@ -58,10 +50,9 @@ namespace Booking.Api.Controllers
 		[HttpGet("my")]
 		public async Task<IActionResult> GetProperties(CancellationToken ct)
 		{
-			var userId = GetUserId(); // extension method
 
 			var result = await _mediator.Send(
-				new GetMyPropertiesQuery(userId),
+				new GetMyPropertiesQuery(),
 				ct);
 
 			return Ok(result);
@@ -70,12 +61,9 @@ namespace Booking.Api.Controllers
 		[HttpPut("{id:guid}")]
 		public async Task<IActionResult> Update(Guid id, UpdatePropertyDto request, CancellationToken ct)
 		{
-			var userId = GetUserId();
-
 			var updated = await _mediator.Send(
 				new UpdatePropertyCommand(
 					id,
-					userId,
 					request.Name,
 					request.Address,
 					request.Type),
@@ -87,10 +75,8 @@ namespace Booking.Api.Controllers
 		[HttpDelete("{id:guid}")]
 		public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
 		{
-			var userId = GetUserId();
-
 			await _mediator.Send(
-				new DeletePropertyCommand(id, userId),
+				new DeletePropertyCommand(id),
 				ct);
 
 			return NoContent();
